@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="www1" basedir="." default="build">
+
+ <target name="prepare">
+	<delete dir="code-build" />
+	<mkdir dir="build" />
+	<mkdir dir="build/logs" />
+	<mkdir dir="build/code-browser" />
+	<mkdir dir="build/docblox" />
+	<mkdir dir="build/pdepend" />
+ </target>
+
+ <target name="PHPCS">
+  <exec executable="phpcs">	
+   <arg line="--report=checkstyle 
+	      --report-file=build/logs/checkstyle.xml
+	      --tab-width=4 
+	      --ignore=phpR**/*
+	      --standard=Zend library/" />
+  </exec>
+ </target>
+
+ <target name="PHPCB">
+  <exec executable="phpcb">
+	<arg line="--log build/logs/
+		   --source library/
+		   --output build/code-browser/" />
+  </exec>
+ </target>
+
+ <target name="DOCBLOX">
+	<exec executable="docblox">
+		<arg line="--directory library
+			   --target build/docblox/" />
+	</exec>
+ </target>
+
+ <target name="PHPCPD">
+	<exec executable="phpcpd">
+		<arg line="--log-pmd build/logs/pmd-cpd.xml
+		library" />
+	</exec>
+ </target>
+ 
+ <target name="PHPLOC">
+	<exec executable="phploc">
+		<arg line="--log-csv build/logs/phploc.csv
+			   library" />
+	</exec>
+ </target>
+
+ <target name="PHPMD">
+ 	<exec executable="phpmd">
+		<arg line="library xml codesize,unusedcode
+			   --reportfile build/logs/pmd.xml" />
+	</exec>
+ </target>
+
+
+ <target name="PDEPEND">
+	<exec executable="pdepend">
+		<arg line="--jdepend-xml=build/logs/jdepend.xml
+			   --jdepend-chart=build/pdepend/depend.svg
+			   --overview-pyramid=build/pdepend/overview.svg
+			   library" />
+	</exec>
+ </target>
+
+
+ <target name="PHPUNIT">
+	<exec dir="tests/unit" executable="phpunit">
+	 <arg line="MainTest" />
+	</exec>
+ </target>
+ <target name="build" depends="prepare,PHPCPD,PHPMD,PHPCS,
+			       PHPUNIT,
+			       PHPCB,PHPLOC,DOCBLOX,PDEPEND" />
+</project>
